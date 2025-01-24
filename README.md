@@ -18,6 +18,8 @@ Make sure you have the following installed on your machine:
 
 Prerequisite: Running MySQL RMS Database
 
+- Schema is available under misc
+
 Follow these steps to get the API up and running:
 
 ### Clone the Repository
