@@ -5,12 +5,28 @@ const router = express.Router();
 module.exports = (pool) => {
   // get all
   router.get("/", async (req, res) => {
+    const { categoryId } = req.query; // optional
+
     try {
-      const [rows] = await pool.query("SELECT * FROM rental_equipment");
+      let query = "SELECT * FROM rental_equipment";
+      const params = [];
+
+      // filters
+      if (categoryId) {
+        query += " WHERE category = ?";
+        params.push(categoryId);
+      }
+
+      const [rows] = await pool.query(query, params);
+
+      if (rows.length === 0) {
+        return res.status(404).json({ error: "No equipment found." });
+      }
+
       res.json(rows);
     } catch (err) {
       console.error(err);
-      res.status(500).json({ error: "Failed to fetch equipment list." });
+      res.status(500).json({ error: "Failed to fetch equipment." });
     }
   });
 
