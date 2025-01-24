@@ -13,7 +13,7 @@ module.exports = (pool) => {
     }
   });
 
-  // get equipment by id
+  // get rental by id
   router.get("/:id", async (req, res) => {
     const { id } = req.params;
     try {
@@ -28,6 +28,41 @@ module.exports = (pool) => {
     } catch (err) {
       console.error(err);
       res.status(500).json({ error: "Failed to fetch equipment." });
+    }
+  });
+
+  //get rental by customer or rental date
+  router.get("/", async (req, res) => {
+    const { customer_id, rental_date } = req.query; // filters
+    try {
+      let query = "SELECT * FROM rental_info";
+      const params = [];
+
+      // add filters based on query parameters
+      if (customer_id || rental_date) {
+        query += " WHERE ";
+        const conditions = [];
+        if (customer_id) {
+          conditions.push("customer_id = ?");
+          params.push(customer_id);
+        }
+        if (rental_date) {
+          conditions.push("DATE(rental_date) = ?");
+          params.push(rental_date);
+        }
+        query += conditions.join(" AND ");
+        console.log(query);
+      }
+
+      const [rows] = await pool.query(query, params);
+      if (rows.length === 0) {
+        return res.status(404).json({ error: "No rental information found." });
+      }
+
+      res.json(rows);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: "Failed to fetch rental information." });
     }
   });
 
